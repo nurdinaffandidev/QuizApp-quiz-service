@@ -1,0 +1,18 @@
+package com.nurdinaffandidev.quiz_service.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.List;
+
+@Entity
+@Data
+public class Quiz {
+    // Attributes
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String title;
+    @ManyToMany
+    private List<Question> questions;
+}
