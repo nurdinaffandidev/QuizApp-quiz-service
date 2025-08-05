@@ -12,45 +12,82 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for handling quiz-related operations.
+ * Exposes endpoints for creating quizzes, retrieving quizzes,
+ * fetching quiz questions, and submitting quiz responses.
+ */
 @RestController
 @RequestMapping("quiz")
 public class QuizController {
 
     private final QuizService quizService;
 
+    /**
+     * Constructor to inject QuizService dependency.
+     *
+     * @param quizService service layer handling quiz business logic
+     */
     @Autowired
     public QuizController(QuizService quizService) {
         this.quizService = quizService;
     }
 
-    // get all quizzes
+    /**
+     * GET endpoint to retrieve all quizzes.
+     *
+     * @return ResponseEntity containing list of all quizzes and HTTP status 200
+     */
     @GetMapping("/allQuizzes")
     public ResponseEntity<List<Quiz>> getAllQuizzes() {
+        // Call service layer to fetch all quizzes and return as response
         return new ResponseEntity<>(quizService.getAllQuizzes(), HttpStatus.OK);
     }
 
-    // create quiz
+    /**
+     * POST endpoint to create a new quiz.
+     *
+     * @param quizDTO data transfer object containing quiz creation parameters:
+     *                categoryName, number of questions, and title
+     * @return ResponseEntity containing created Quiz object and HTTP status 200
+     */
     @PostMapping("/create")
     public ResponseEntity<Quiz> createQuiz(@RequestBody QuizDTO quizDTO) {
-        return new ResponseEntity<>(
-                quizService.createQuiz(
-                        quizDTO.getCategoryName(),
-                        quizDTO.getNumQuestions(),
-                        quizDTO.getTitle()
-                ),
-                HttpStatus.OK
+        // Delegate quiz creation to service layer using values from DTO
+        Quiz createdQuiz = quizService.createQuiz(
+                quizDTO.getCategoryName(),
+                quizDTO.getNumQuestions(),
+                quizDTO.getTitle()
         );
+        // Return created quiz as response
+        return new ResponseEntity<>(createdQuiz, HttpStatus.OK);
     }
 
-    // get questions from quiz
+    /**
+     * GET endpoint to fetch questions of a specific quiz by its ID.
+     *
+     * @param id the quiz ID passed as request parameter
+     * @return ResponseEntity containing list of QuestionWrapper and HTTP status 200
+     */
     @GetMapping(value = "/", params = "id")
     public ResponseEntity<List<QuestionWrapper>> getQuizQuestions(@RequestParam int id) {
-        return new ResponseEntity<>(quizService.getQuizQuestions(id), HttpStatus.OK);
+        // Fetch quiz questions wrapped in simplified QuestionWrapper objects
+        List<QuestionWrapper> questions = quizService.getQuizQuestions(id);
+        // Return questions in response entity
+        return new ResponseEntity<>(questions, HttpStatus.OK);
     }
 
-    // submit quiz and get result
+    /**
+     * POST endpoint to submit quiz answers and calculate the result.
+     *
+     * @param responses list of QuizResponse objects containing questionId and user response
+     * @return ResponseEntity containing the integer score and HTTP status 200
+     */
     @PostMapping(value = "/submit")
     public ResponseEntity<Integer> submitAnswer(@RequestBody List<QuizResponse> responses) {
-        return new ResponseEntity<>(quizService.calculateResult(responses), HttpStatus.OK);
+        // Calculate score by delegating to service layer
+        int score = quizService.calculateResult(responses);
+        // Return calculated score in response
+        return new ResponseEntity<>(score, HttpStatus.OK);
     }
 }
