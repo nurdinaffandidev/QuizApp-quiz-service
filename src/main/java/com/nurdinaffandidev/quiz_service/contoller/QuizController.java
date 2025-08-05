@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("quiz-app/quiz")
+@RequestMapping("quiz")
 public class QuizController {
 
     private final QuizService quizService;
@@ -48,8 +48,9 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getQuizQuestions(id), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/submit/", params = "quizId")
-    public ResponseEntity<Integer> submitAnswer(@RequestParam Integer quizId , @RequestBody List<QuizResponse> responses) {
-        return new ResponseEntity<>(quizService.calculateResult(quizId, responses), HttpStatus.OK);
+    // submit quiz and get result
+    @PostMapping(value = "/submit")
+    public ResponseEntity<Integer> submitAnswer(@RequestBody List<QuizResponse> responses) {
+        return new ResponseEntity<>(quizService.calculateResult(responses), HttpStatus.OK);
     }
 }
